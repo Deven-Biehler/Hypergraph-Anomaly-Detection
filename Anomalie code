@@ -1,0 +1,36 @@
+#Anomalies code
+
+import numpy as np
+
+# Parameters
+total_entries = 50000
+anomaly_percentage = 5  # Percentage of anomalies
+mean, std_dev = 0, 1    # Mean and standard deviation for normal data
+
+# Calculating number of anomalies
+num_anomalies = int(total_entries * (anomaly_percentage / 100))
+
+# Generate normal data
+data = np.random.normal(loc=mean, scale=std_dev, size=total_entries)
+
+# Randomly select indices to replace with anomalies
+anomaly_indices = np.random.choice(total_entries, num_anomalies, replace=False)
+
+# Inject anomalies
+anomalies = np.random.normal(loc=mean + 10*std_dev, scale=2*std_dev, size=num_anomalies)
+data[anomaly_indices] = anomalies
+
+# Print or output the data
+print(data)
+
+#Histogram code is below
+
+import matplotlib.pyplot as plt
+
+# Create a histogram of the data
+plt.figure(figsize=(10, 6))
+plt.hist(data, bins=50, alpha=0.75)
+plt.title('Histogram of Data with Injected Anomalies')
+plt.xlabel('Data Values')
+plt.ylabel('Frequency')
+plt.show()
