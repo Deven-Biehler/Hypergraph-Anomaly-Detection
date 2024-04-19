@@ -6,7 +6,7 @@ import torch.optim as optim
 import torch.nn.functional as F
 
 from dhg import Hypergraph
-from include.reddit_graph_dataset import Reddit
+from include.reddit.reddit_graph_dataset import Reddit
 from dhg.models import HGNN
 from dhg.random import set_seed
 from dhg.metrics import GraphVertexClassificationEvaluator as Evaluator

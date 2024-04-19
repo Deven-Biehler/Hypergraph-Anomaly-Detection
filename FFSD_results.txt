@@ -1,0 +1,5 @@
+
+best val: 0.84251
+test...
+final result: epoch: 182
+{'accuracy': 0.8451417088508606, 'f1_score': 0.6374435061460766, 'f1_score -> average@micro': 0.8451417004048583}
