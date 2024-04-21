@@ -8,31 +8,60 @@ from sklearn.feature_extraction.text import CountVectorizer
 import string
 import pickle
 
-def write_hypergraph_edge_list(input_file_path, output_file_path, size):
+def inject_anomolies(input_file_path, output_file_path, anomolies_file_path, size, chance):
+    write_file = open(output_file_path, "w")
+    read_file = open(input_file_path, "r", encoding="utf-8")
+    anomolous_text = open(anomolies_file_path, "r", encoding="utf-8")
+    rand = random.Random()
+    scammers = ["scammer" + str(i) for i in range(int(size * 0.05))]
+    scam_subs = ["scam_sub" + str(i) for i in range(int(size * 0.05))]
+    chance_of_scam = .8
+    sucessful_entries = 0
+    for line in read_file:
+        dict_line = json.loads(line)
+        if dict_line["author"] == "[deleted]":
+            continue
+        dict_line["label"] = 0
+        if rand.random() < chance:
+            # chance of entry being a scammer
+            dict_line["author"] = random.choice(scammers)
+            # label the entry as a scammer
+            dict_line["label"] = 1
+            if rand.random() < chance_of_scam:
+                # chance of entry being a scam
+                dict_line["subreddit"] = random.choice(scam_subs)
+                dict_line["body"] = anomolous_text.readline()
+        sucessful_entries += 1
+        if sucessful_entries >= size:
+            break
+        write_file.write(json.dumps(dict_line) + "\n")
+    write_file.close()
+
+
+def write_hypergraph_edge_list(input_file_path, output_file_path):
     write_file = open(output_file_path, "w")
     read_file = open(input_file_path, "r", encoding="utf-8")
     sucessful_entries = 0
     edgelist = {}
     user_ids = []
+    labels = []
     for line in read_file:
         line_dict = json.loads(line)
-        if line_dict["author"] == "[deleted]":
-            continue
         if line_dict["author"] not in user_ids:
             user_ids.append(line_dict["author"])
+            labels.append(line_dict["label"])
         if line_dict["subreddit"] in edgelist:
             edgelist[line_dict["subreddit"]].append(line_dict["author"])
         else:
             edgelist[line_dict["subreddit"]] = [line_dict["author"]]
         sucessful_entries += 1
-        if sucessful_entries >= size:
-            break
     output = []
     for user_list in edgelist.values():
         output.append([user_ids.index(user) for user in user_list])
     json.dump(output, write_file)
-    json.dump(user_ids, open("user_id_mapping", "w"), indent = 4)
-        
+    json.dump(user_ids, open("data/user_id_mapping", "w"), indent = 4)
+    json.dump(labels, open("data/labels", "w"), indent = 4)
+
 
 
 def write_edge_list():
@@ -69,20 +98,6 @@ def subset_edge_list(input_file_path, output_file_path, subset):
         if i == subset:
             break
     new_file.close()
-
-def get_labels(input_file_path, output_file_path):
-    data = open(input_file_path, "r")
-    data = json.load(data)
-
-    # randomly select users for now
-    labels = []
-    for i, user in enumerate(data):
-        if random.random() < 0.5:
-            labels.append(1)
-        else:
-            labels.append(0)
-    output_file = open(output_file_path, "w")
-    json.dump(labels, output_file, indent = 4)
 
 def get_train_mask(input_file_path, output_file_path):
     data = open(input_file_path, "r")
@@ -176,8 +191,7 @@ def get_all_text(input_file_path, output_file_path):
         line = file.readline()
         print(line)
         user_text = {}
-        while line:
-            line = file.readline()
+        for line in file:
             line_dict = json.loads(line)
             if line_dict["author"] == "[deleted]":
                 continue
@@ -186,9 +200,6 @@ def get_all_text(input_file_path, output_file_path):
             else:
                 user_text[line_dict["author"]] = [clean_text(line_dict["body"])]
             sucessful_entries += 1
-            if sucessful_entries >= 1000:
-                print("Entries processed: " + str(sucessful_entries))
-                break
         json.dump(user_text, write_file)
 
     write_file.close()

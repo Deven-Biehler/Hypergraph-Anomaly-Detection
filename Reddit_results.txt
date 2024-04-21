@@ -1,0 +1,9 @@
+
+
+10000 entries
+80% chance of sending an anomolous message
+best val: 0.95645
+test...
+final result: epoch: 196
+{'accuracy': 0.9606837630271912, 'f1_score': 0.7947337106592014, 'f1_score -> average@micro': 0.9606837606837607}
+Loss = 0.11301
