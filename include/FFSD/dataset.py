@@ -12,12 +12,12 @@ class FFSD(BaseData):
             "num_classes": 2,
             "num_vertices": 29643,
             "num_edges": 626,
-            "dim_features": 6,
+            "dim_features": 5,
             "features": {
                 "upon": [
                     {
                         "filename": "features.pkl", 
-                        "md5": "9e9e536593973c33626aecff81901133",
+                        "md5": "948bfcd0cc4c921e7371642353a92916",
                     }
                 ],
                 "loader": load_from_pickle,

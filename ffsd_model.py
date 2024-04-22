@@ -7,9 +7,10 @@ import torch.nn.functional as F
 
 from dhg import Hypergraph
 from include.FFSD.dataset import FFSD
-from dhg.models import HGNN
+from dhg.models import HGNNP
 from dhg.random import set_seed
 from dhg.metrics import GraphVertexClassificationEvaluator as Evaluator
+from sklearn.metrics import roc_auc_score
 
 # define your train function
 def train(net, X, A, lbls, train_idx, optimizer, epoch):
@@ -37,6 +38,10 @@ def infer(net, X, A, lbls, idx, test=False):
     else:
         # testing with you evaluator
         res = evaluator.test(lbls, outs)
+
+    auc_score = roc_auc_score(lbls.cpu().numpy(), outs.cpu().numpy()[:, 1])
+    print(f"AUC Score: {auc_score:.5f}")
+
     return res
 
 
@@ -55,7 +60,7 @@ if __name__ == "__main__":
     test_mask = data["test_mask"]
 
     # initialize your model here
-    net = HGNN(data["dim_features"], 16, data["num_classes"])
+    net = HGNNP(data["dim_features"], 16, data["num_classes"])
     optimizer = optim.Adam(net.parameters(), lr=0.01, weight_decay=5e-4)
 
     X, lbl = X.to(device), lbl.to(device)

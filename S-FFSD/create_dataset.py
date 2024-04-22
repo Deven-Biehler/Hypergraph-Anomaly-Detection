@@ -13,7 +13,7 @@ def preprocess_data(input_file_path):
     return data
 
 def get_features(data):
-    features = data.drop(columns=['Target', 'Labels'])
+    features = data.drop(columns=['Source', 'Target', 'Labels'])
     features = np.array(features)
     label_encoder = LabelEncoder()
     for i in range(features.shape[1]):
