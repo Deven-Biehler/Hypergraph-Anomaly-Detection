@@ -1,19 +1,22 @@
 import time
 from copy import deepcopy
 
+import matplotlib.pyplot as plt
+
 import torch
 import torch.optim as optim
 import torch.nn.functional as F
 
 from dhg import Hypergraph
 from include.reddit.reddit_graph_dataset import Reddit
+from dhg.data import Facebook, Cooking200
 from dhg.models import HGNNP
 from dhg.random import set_seed
 from dhg.metrics import GraphVertexClassificationEvaluator as Evaluator
 from sklearn.metrics import roc_auc_score
 
 # define your train function
-def train(net, X, A, lbls, train_idx, optimizer, epoch):
+def train(net, X, A, lbls, train_idx, optimizer, epoch, loss_list, accuracy_list):
     net.train()
 
     st = time.time()
@@ -23,20 +26,28 @@ def train(net, X, A, lbls, train_idx, optimizer, epoch):
     loss = F.cross_entropy(outs, lbls)
     loss.backward()
     optimizer.step()
-    print(f"Epoch: {epoch}, Time: {time.time()-st:.5f}s, Loss: {loss.item():.5f}")
+    preds = torch.argmax(outs, dim=1)
+    accuracy = torch.sum(preds == lbls).item() / len(lbls)
+    num_zeros = torch.sum(preds == 0).item()
+    num_ones = torch.sum(preds == 1).item()
+    print(f"Number of 0s in preds: {num_zeros}")
+    print(f"Number of 1s in preds: {num_ones}")
+    print(f"Epoch: {epoch}, Time: {time.time()-st:.5f}s, Loss: {loss.item():.5f}, Accuracy: {accuracy:.5f}")
+    
+    # Save loss and accuracy
+    loss_list.append(loss.item())
+    accuracy_list.append(accuracy)
+    
     return loss.item()
 
-# define your validation and testing function
 @torch.no_grad()
 def infer(net, X, A, lbls, idx, test=False):
     net.eval()
     outs = net(X, A)
     outs, lbls = outs[idx], lbls[idx]
     if not test:
-        # validation with you evaluator
         res = evaluator.validate(lbls, outs)
     else:
-        # testing with you evaluator
         res = evaluator.test(lbls, outs)
 
     auc_score = roc_auc_score(lbls.cpu().numpy(), outs.cpu().numpy()[:, 1])
@@ -44,14 +55,14 @@ def infer(net, X, A, lbls, idx, test=False):
     
     return res
 
-
 if __name__ == "__main__":
     set_seed(2022)
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
     # config your evaluation metric here
-    evaluator = Evaluator(["accuracy", "f1_score", {"f1_score": {"average": "micro"}}])
+    evaluator = Evaluator(["accuracy", "f1_score", "confusion_matrix", {"f1_score": {"average": "micro"}}])
     # load Your data here
     data = Reddit()
+    print(data.raw("features").shape)
     X, lbl = data["features"], data["labels"]
     # construct your correlation structure here
     G = Hypergraph(data["num_vertices"], data["edge_list"])
@@ -69,9 +80,11 @@ if __name__ == "__main__":
 
     best_state = None
     best_epoch, best_val = 0, 0
-    for epoch in range(200):
+    loss_list = []
+    accuracy_list = []
+    for epoch in range(250):
         # train
-        train(net, X, G, lbl, train_mask, optimizer, epoch)
+        train_loss = train(net, X, G, lbl, train_mask, optimizer, epoch, loss_list, accuracy_list)
         # validation
         if epoch % 1 == 0:
             with torch.no_grad():
@@ -89,3 +102,11 @@ if __name__ == "__main__":
     res = infer(net, X, G, lbl, test_mask, test=True)
     print(f"final result: epoch: {best_epoch}")
     print(res)
+    
+    # Plot loss and accuracy
+    plt.plot(loss_list, label='Loss')
+    plt.plot(accuracy_list, label='Accuracy')
+    plt.xlabel('Epoch')
+    plt.ylabel('Value')
+    plt.legend()
+    plt.show()

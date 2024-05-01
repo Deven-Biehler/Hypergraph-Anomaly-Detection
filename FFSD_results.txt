@@ -1,7 +1,0 @@
-
-train finished!
-best val: 0.84150
-test...
-AUC Score: 0.69006
-final result: epoch: 129
-{'accuracy': 0.8437246680259705, 'f1_score': 0.6430470131741118, 'f1_score -> average@micro': 0.8437246963562753}

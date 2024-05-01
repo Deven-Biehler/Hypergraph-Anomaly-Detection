@@ -10,14 +10,14 @@ class Reddit(BaseData):
         super().__init__("reddit", data_root)
         self._content = {
             "num_classes": 2,
-            "num_vertices": 7025,
-            "num_edges": 2165,
-            "dim_features": 7138,
+            "num_vertices": 20046,
+            "num_edges": 3016,
+            "dim_features": 38758,
             "features": {
                 "upon": [
                     {
                         "filename": "features.pkl", 
-                        "md5": "c4e93fd0190a09eec1aa6791572892a0",
+                        "md5": "f85c671830b36d027d2c35f17e7f19d4",
                     }
                 ],
                 "loader": load_from_pickle,
@@ -27,7 +27,7 @@ class Reddit(BaseData):
                 "upon": [
                     {
                         "filename": "edgelist.pkl",
-                        "md5": "3e35ec8caacb1b2986e5a443f5ffdf1d",
+                        "md5": "50cb5eb3053f832d436b58e234c87bc6",
                     }
                 ],
                 "loader": load_from_pickle,
@@ -36,7 +36,7 @@ class Reddit(BaseData):
                 "upon": [
                     {
                         "filename": "labels.pkl",
-                        "md5": "5d8ab83c1ac4e2d92ea2f749de5f5822",
+                        "md5": "2710b39001f857eb50a089171c8a80e3",
                     }
                 ],
                 "loader": load_from_pickle,
@@ -46,7 +46,7 @@ class Reddit(BaseData):
                 "upon": [
                     {
                         "filename": "train_mask.pkl",
-                        "md5": "54e4610a1f41aee91bd9c7bf4945f3c7",
+                        "md5": "fedd0650f731ac39b2e09d7a13b951f9",
                     }
                 ],
                 "loader": load_from_pickle,
@@ -56,7 +56,7 @@ class Reddit(BaseData):
                 "upon": [
                     {
                         "filename": "val_mask.pkl",
-                        "md5": "20d1ea8c050610e8c5727e18654601f9",
+                        "md5": "e24dd1c41d9a425144f17b6a64b3acc8",
                     }
                 ],
                 "loader": load_from_pickle,
@@ -66,7 +66,7 @@ class Reddit(BaseData):
                 "upon": [
                     {
                         "filename": "test_mask.pkl",
-                        "md5": "9ddda70608d879355925c36bc1003f0f",
+                        "md5": "b1fe02b4bc6a4991bff77aebba28961f",
                     }
                 ],
                 "loader": load_from_pickle,
